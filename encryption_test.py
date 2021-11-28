@@ -33,3 +33,19 @@ print("Decrypted sender/reciever:", decrypted_sender_reciver)
 # Decrypt the message with the reciever private key
 decrypted_message = PKCS1_OAEP.new(keyPairReciever).decrypt(encrypted_message)
 print("Decrypted message:", decrypted_message)
+
+
+# Testing multiple encryptions
+keyPair1 = RSA.generate(1024)
+keyPair2 = RSA.generate(3072)
+
+message1 = "sender message"
+enc_message1 = PKCS1_OAEP.new(keyPair1.publickey()).encrypt(message1.encode())
+message2 = b"destination: " + enc_message1
+enc_message2 = PKCS1_OAEP.new(keyPair2.publickey()).encrypt(message2)
+dcr_message2 = PKCS1_OAEP.new(keyPair2).decrypt(enc_message2)
+print(dcr_message2)
+enc_message1 = dcr_message2[dcr_message2.index(b':')+2:]
+print(enc_message1)
+dcr_message1 = PKCS1_OAEP.new(keyPair1).decrypt(enc_message1)
+print(dcr_message1)
