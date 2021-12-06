@@ -22,7 +22,6 @@ my_pub_key = my_key_pair.publickey()
 server_pubKey = RSA.importKey(server_message)
 print("Server public key recieved")
 
-
 # Destination user public key
 dest_user_pubKey = ""
 
@@ -38,18 +37,41 @@ def encrypt_user_message(message):
     enc_message = PKCS1_OAEP.new(dest_user_pubKey).encrypt(message.encode())
     return enc_message
 
+# Sign in/Register
+try:
+    while True:
+        print("Enter [R] to register or [S] to sign in")
+        mode = username = stdin.readline().strip()
+        if mode != 'R' and mode != 'S':
+            print("Invalid input, try again")
+            continue
 
-print("Please enter your username:")
-username = stdin.readline().strip()
-print("Please enter your password:")
-password = stdin.readline().strip()
+        print("Please enter your username:")
+        username = stdin.readline().strip()
+        print("Please enter your password:")
+        password = stdin.readline().strip()
 
-login = f"^{username}:{password};{my_pub_key.export_key().decode()}"
-enc_login = encrypt_server_message(login.encode())
-client_socket.send(enc_login)
+        if mode == 'R':
+            login = f"^--regi{username}:{password};{my_pub_key.export_key().decode()}"
+        else:
+            login = f"^--sign{username}:{password};{my_pub_key.export_key().decode()}"
 
-# TODO: Setup handle auth here
-
+        enc_login = encrypt_server_message(login.encode())
+        client_socket.send(enc_login)
+        server_message = client_socket.recv(4096)
+        dcr_message = decrypt_my_message(server_message).decode()
+        print(dcr_message)
+        if dcr_message == "--failed":
+            if mode == 'R':
+                print("Registration failed")
+            else:
+                print("Sign in failed")
+        else:
+            print("Success")
+            break
+except:
+    client_socket.close()
+    exit
 
 # Start session with another user
 dest_user = ""

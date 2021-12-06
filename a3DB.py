@@ -373,100 +373,39 @@ def mode_signin():
 		print("Command not understood, make sure it is capitalized, or try \"help\"")
 		mode_signin()
 
-def register_pass(GIVEN_NAME):
-	GIVEN_PASSWORD=getpass.getpass("Enter desired password\n")
-	CONFIRM_PASSWORD=getpass.getpass("Confirm Password\n")
-	if GIVEN_PASSWORD==CONFIRM_PASSWORD:
-		print("Creating new entry in Database")
-		interface.execute('''BEGIN''')
-		result=interface.execute('''
-		INSERT INTO `accounts` (username, password) VALUES
-		(?,?);
-		''',(GIVEN_NAME,GIVEN_PASSWORD,))
-		interface.execute('''COMMIT''')
-		print("Account created, please sign in to continue!")
-		mode_signin()
-	else:
-		print("Password confirmation failed, please try again")
-		register_pass(GIVEN_NAME)
+def register_pass(GIVEN_NAME, GIVEN_PASS, interface):
+	interface.execute('''BEGIN''')
+	result=interface.execute('''
+	INSERT INTO `accounts` (username, password) VALUES
+	(?,?);
+	''',(GIVEN_NAME,GIVEN_PASS,))
+	interface.execute('''COMMIT''')
+	print("Success")
+	return
 
-def register():
-	GIVEN_NAME=input("Enter desired username\n")
+def register(GIVEN_NAME, GIVEN_PASS, interface):
+	print("Trying to register " + GIVEN_NAME + " in database")
 	result=interface.execute('''
 	SELECT COUNT(1) FROM accounts
 	WHERE username= ?;
 	''',(GIVEN_NAME,))
 	for row in result:
 		if row[0] ==1:
-			print("Sorry, that username is in use, try another")
+			print("Failed")
+			return False
 		else:
-			register_pass(GIVEN_NAME)
+			register_pass(GIVEN_NAME, GIVEN_PASS, interface)
+			return True
 
-def signin():
-	GIVEN_NAME=input("Enter Username:")
-	GIVEN_PASSWORD=getpass.getpass("Enter Password:")
+def signin(GIVEN_NAME, GIVEN_PASS, interface):
+	print("Trying to sign in" + GIVEN_NAME)
 	result=interface.execute('''
 	SELECT COUNT(1) FROM accounts
 	WHERE username= ? AND password= ?;
-	''',(GIVEN_NAME,GIVEN_PASSWORD,))
+	''',(GIVEN_NAME,GIVEN_PASS,))
 	for row in result:
 		if row[0] ==1:
-			print("Hello "+GIVEN_NAME+", now signing in")
-			mode_console(GIVEN_NAME)
+			print(GIVEN_NAME + " now signing in")
+			return True
 		else:
-			print("The combination is not in the database, please try again, or register a new account")
-			mode_signin()
-
-###execution begins here
-not_setup= not os.path.exists(dbname)
-
-try:
-	interface = sqlite3.connect(dbname)
-
-	if not_setup:
-		print("First time setup for database starting")
-		interface.execute('''
-		CREATE TABLE `accounts` (
-			`username` TEXT NOT NULL,
-			`password` TEXT NOT NULL,
-			PRIMARY KEY (username)
-		);
-		''')
-		interface.execute('''
-		CREATE TABLE `chatroom` (
-			`username` TEXT NOT NULL,
-			`num` INTEGER NOT NULL
-		);
-		''')
-		interface.execute('''
-		CREATE TABLE `chatnames` (
-			`num` INTEGER NOT NULL,
-			`name` TEXT NOT NULL,
-			PRIMARY KEY (name)
-		);
-		''')
-		interface.execute('''
-		CREATE TABLE `message` (
-			`num` INTEGER NOT NULL,
-			`indexnum` INTEGER NOT NULL,
-			`content` TEXT NOT NULL, --filepath
-			`username` TEXT NOT NULL,
-			CONSTRAINT PK_message PRIMARY KEY (num, indexnum)
-		);
-		''')
-		print("Setup Complete")
-	else:
-		print("Database found")
-
-	print("Proceeding to Sign In")
-	print("Enter \"help\" at any time to display available commands, or \"exit\" to shut down the program")
-	mode_signin()
-
-except sqlite3.Error as e:
-    print(f"Error {e.args[0]}")
-    sys.exit(1)
-
-finally:
-	if interface:
-		print("Closing")
-		interface.close()
+			return False
