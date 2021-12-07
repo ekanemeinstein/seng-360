@@ -11,7 +11,7 @@ import getpass
 
 ##change this to create a new database with a new name automatically
 dbname='test.db'
-
+interface = None
 def leave(GIVEN_NAME,CHAT_NUM):
 	userin=input("Do you really want to leave this chatroom?\n(Y/N)\n")
 	if userin=="Y":
@@ -38,21 +38,18 @@ def leave(GIVEN_NAME,CHAT_NUM):
 		print("Returning to chatroom")
 ###CHANGE THIS###CHANGE THIS###CHANGE THIS###CHANGE THIS###CHANGE THIS
 
-def purge(GIVEN_NAME,CHAT_NUM):
+def purge(GIVEN_NAME, CHAT_NUM, interface):
 	result=interface.execute('''
 	SELECT name FROM chatnames WHERE num= ?
 	''',(CHAT_NUM,))
 	for row in result:
-		print("Do you really want to delete all your messages in",row[0],"?")
-	userin=input("(Y/N)\n")
-	if userin=='Y':
-			interface.execute('''BEGIN''')
-			interface.execute('''
-			UPDATE `message` SET content='Message Deleted' 
-			WHERE username= ? AND num= ?;
-			''',(GIVEN_NAME,CHAT_NUM,))
-			interface.execute('''COMMIT''')
-			print("All your messages in this chatroom have been deleted")
+		interface.execute('''BEGIN''')
+		interface.execute('''
+		UPDATE `message` SET content='Message Deleted' 
+		WHERE username= ? AND num= ?;
+		''',(GIVEN_NAME,CHAT_NUM,))
+		interface.execute('''COMMIT''')
+		return
 ###AND DELETE FILE PATH
 	else:
 		print("Returning to Chatroom")
@@ -119,9 +116,8 @@ def view_message(CHAT_NUM):
 				print("Requested message does not exist")
 	
 
-def create(GIVEN_NAME,CHAT_NUM):
+def create(GIVEN_NAME, CHAT_NUM, userin, interface):
 ##when this gets working, it'll be "submit a file, and then it'll store it instead of this"
-	userin=input("Submit some text\n")
 	INDEXNUMBER=0
 	result=interface.execute('''
 	SELECT 
@@ -140,6 +136,7 @@ def create(GIVEN_NAME,CHAT_NUM):
 	''',(CHAT_NUM,INDEXNUMBER,userin,GIVEN_NAME,))
 	interface.execute('''COMMIT''')
 	print("Message Submitted")
+	return
 ###CHANGE THIS###CHANGE THIS###CHANGE THIS###CHANGE THIS###CHANGE THIS
 
 def add_user(CHAT_NUM):
@@ -168,90 +165,46 @@ def add_user(CHAT_NUM):
 		else:
 			print("No user was found with that name")
 
+def delete_acc(GIVEN_NAME, interface):
+	result=interface.execute('''
+	SELECT num FROM `chatroom` where username= ?;
+	''',(GIVEN_NAME,))
+	for row in result:
+		purge(GIVEN_NAME,row[0],interface)
+	#for row in result:
+	#	leave(GIVEN_NAME,row[0],interface)
+	interface.execute('''BEGIN''')
+	interface.execute('''
+	DELETE FROM `accounts` WHERE username=?;
+	''',(GIVEN_NAME,))
+	interface.execute('''COMMIT''')
+	return
 
-def mode_chat(GIVEN_NAME,CHAT_NUM):
-	userin=input("[A]dd user, [C]reate, [V]iew, [U]pdate, [D]elete, [P]urge, [L]eave, [R]eturn\n")
-	if userin=='A':
-		add_user(CHAT_NUM)
-		mode_chat(GIVEN_NAME,CHAT_NUM)
-	elif userin=='C':
-		create(GIVEN_NAME,CHAT_NUM)
-		mode_chat(GIVEN_NAME,CHAT_NUM)
-	elif userin=='V':
-		view_message(CHAT_NUM)
-		mode_chat(GIVEN_NAME,CHAT_NUM)
-	elif userin=='U':
-		update_chat(CHAT_NUM)
-		mode_chat(GIVEN_NAME,CHAT_NUM)
-	elif userin=='D':
-		delete_message(GIVEN_NAME,CHAT_NUM)
-		mode_chat(GIVEN_NAME,CHAT_NUM)
-	elif userin=='P':
-		purge(GIVEN_NAME,CHAT_NUM)
-		mode_chat(GIVEN_NAME,CHAT_NUM)
-	elif userin=='L':
-		leave(GIVEN_NAME,CHAT_NUM)
-		mode_console(GIVEN_NAME)
-	elif userin=='R':
-		print("Returning to chatroom selection")
-		mode_console(GIVEN_NAME)
-	elif userin=='exit':
-		print('Manual Exit')
-		sys.exit(1)
-	elif userin=='help':
-		print("[A]dd User allows you to add a new user to this chatroom\n[C]reate allows you to send a new message\n[V]iew allows you to view a message in this chatroom\n[U]pdate let's you change the name of this chatroom\n[D]elete let's you remove the content of one of your messages\n[P]urge can delete the content of all your sent messages\n[L]eave will remove you from this chatroom permanently\n[R]eturn goes back to chatroom selection")
-		mode_chat(GIVEN_NAME,CHAT_NUM)
-	else:
-		print("Command not understood, make sure it is capitalized, or try \"help\"")
-		mode_chat(GIVEN_NAME,CHAT_NUM)
-
-def delete_acc(GIVEN_NAME):
-	userin=input("Are you sure you want to delete your account? (Y/N)\n")
-	if userin=='Y':
-		userin=input("Do you want to delete all your messages as well? (Y/N)\n")
-		result=interface.execute('''
-		SELECT num FROM `chatroom` where username= ?;
-		''',(GIVEN_NAME,))
-		if userin=='Y':
-			for row in result:
-				purge(GIVEN_NAME,row[0])
-		for row in result:
-			leave(GIVEN_NAME,row[0])
-		interface.execute('''BEGIN''')
-		interface.execute('''
-		DELETE FROM `accounts` WHERE username=?;
-		''',(GIVEN_NAME,))
-		interface.execute('''COMMIT''')
-		print("Returning to Sign in")
-		mode_signin()
-	else:
-		print("Returning to Home")
-
-def join_chat(GIVEN_NAME):
-	CHAT_NUM=input("Enter the ID of the Chatroom you wish to join\n")
+def join_chat(GIVEN_NAME, CHAT_NUM, interface):
 	result=interface.execute('''
 	SELECT COUNT(1) FROM `chatroom` 
 	WHERE num= ? AND username= ?;
 	''',(CHAT_NUM,GIVEN_NAME,))
 	for row in result:
 		if row[0]==0:
-			print("You do not have access to that chatroom, did you get the ID right?")
+			return False
 		else:
-				result=interface.execute('''
-				SELECT name FROM `chatnames` WHERE num= ?;
-				''',(CHAT_NUM,))
-				for row in result:
-					print("Entering Chatroom:",row[0])
-					mode_chat(GIVEN_NAME,CHAT_NUM)
+			result=interface.execute('''
+			SELECT name FROM `chatnames` WHERE num= ?;
+			''',(CHAT_NUM,))
+			for row in result:
+				print("Entering Chatroom:",row[0])
+				return row[0]
 
-def view_chat(GIVEN_NAME):
+def view_chat(GIVEN_NAME, interface):
+	list = []
 	result=interface.execute('''
 	SELECT COUNT(1) FROM `chatroom` 
 	WHERE username= ?;
 	''',(GIVEN_NAME,))
 	for row in result:
 		if row[0]==0:
-			print("You're not in any chatrooms, trying creating a new one!")
+			break
 		else:
 			result2=interface.execute('''
 			SELECT chatroom.num, name 
@@ -261,17 +214,18 @@ def view_chat(GIVEN_NAME):
 			ORDER BY chatnames.num;
 			''',(GIVEN_NAME,))
 			for row2 in result2:
-				print("The ID for Room",row2[1],"is",row2[0])
+				string = "Room name: " + str(row2[1]) + ", ID: " + str(row2[0]) + "\n"
+				list.append(string)
+	return list
 
-def new_chat(GIVEN_NAME):
-	LIST_NAME=input("Who would you like to add to the chatroom?\n")
+def new_chat(GIVEN_NAME, LIST_NAME, interface):
 	result=interface.execute('''
 	SELECT COUNT(1) FROM accounts
 	WHERE username= ?;
 	''',(LIST_NAME,))
 	for row in result:
 		if row[0] ==0:
-			print("No match found for that username")
+			return -1
 		else:
 			FIRST_OPEN=0
 			interface.execute('''BEGIN''')
@@ -289,73 +243,27 @@ def new_chat(GIVEN_NAME):
 			INSERT INTO `chatroom` (username, num) VALUES
 			(?,?),(?,?);
 			''', (GIVEN_NAME, FIRST_OPEN, LIST_NAME, FIRST_OPEN))
-			print("Chatroom Created")
-			while 1:
-				userin=input("Would you like to add another user (Y/N)?\nYou can do this later as well\n")
-				if userin=='N':
-					break
-				elif userin=='Y':
-					LIST_NAME=input("Who would you like to add to the chatroom?\n")
-					result=interface.execute('''
-					SELECT COUNT(1) FROM accounts
-					WHERE username= ?;
-					''',(LIST_NAME,))
-					for row in result:
-						if row[0] ==0:
-							print("No match found for that username")
-						else:
-							interface.execute('''
-							INSERT INTO `chatroom` (username, num) VALUES
-							(?,?);
-							''', (LIST_NAME, FIRST_OPEN))
-							print("Listed user added to chatroom")
-				else:
-					print("Please answer with [Y]es or [N]o")
-			CHAT_NAME=input("What would you like to name the chatroom? This can be changed later\n")
-			interface.execute('''
-			INSERT INTO `chatnames` (name, num) VALUES
-			(?,?);
-			''', (CHAT_NAME, FIRST_OPEN))
-			interface.execute('''COMMIT''')
-			print("Chatroom created, you can join it with the Join command using chat ID",FIRST_OPEN)
+			return FIRST_OPEN
 
-def find():
+def name_new_chat(CHAT_NAME, FIRST_OPEN, interface):
+	interface.execute('''
+	INSERT INTO `chatnames` (name, num) VALUES
+	(?,?);
+	''', (CHAT_NAME, FIRST_OPEN))
+	interface.execute('''COMMIT''')
+	return
+
+
+def find(my_name, interface):
 	print("Displaying all usernames in the system")
 	result=interface.execute('''
 	SELECT username FROM accounts;
 	''')
+	list = []
 	for row in result:
-		print(row[0])
-
-def mode_console(GIVEN_NAME):
-	userin=input("[F]ind, [N]ew, [V]iew, [J]oin, [D]elete account, [R]eturn\n")
-	if userin== 'F':
-		find()
-		mode_console(GIVEN_NAME)
-	elif userin== 'N':
-		new_chat(GIVEN_NAME)
-		mode_console(GIVEN_NAME)
-	elif userin== 'V':
-		view_chat(GIVEN_NAME)
-		mode_console(GIVEN_NAME)
-	elif userin== 'J':
-		join_chat(GIVEN_NAME)
-		mode_console(GIVEN_NAME)
-	elif userin== 'D':
-		delete_acc(GIVEN_NAME)
-		mode_console(GIVEN_NAME)
-	elif userin=='R':
-		print("Signing out") ##aka going back
-		mode_signin()
-	elif userin=='exit':
-		print('Manual Exit')
-		sys.exit(1)
-	elif userin== 'help':
-		print("[F]ind displays all users\n[N]ew allows you to create a new chatroom\n[V]iew show all the chatrooms you are in\n[J]oin lets you join a chatroom you're a member of\n[D]elete allows you to delete your account\n[R]eturn signs you out")
-		mode_console(GIVEN_NAME)
-	else:
-		print("Command not understood, make sure it is capitalized, or try \"help\"")
-		mode_console(GIVEN_NAME)
+		if row[0] != my_name:
+			list.append(row[0])
+	return list
 
 def mode_signin():
 	userin=input("[R]egister or [S]ign In\n")
@@ -398,7 +306,7 @@ def register(GIVEN_NAME, GIVEN_PASS, interface):
 			return True
 
 def signin(GIVEN_NAME, GIVEN_PASS, interface):
-	print("Trying to sign in" + GIVEN_NAME)
+	print("Trying to sign in " + GIVEN_NAME)
 	result=interface.execute('''
 	SELECT COUNT(1) FROM accounts
 	WHERE username= ? AND password= ?;
