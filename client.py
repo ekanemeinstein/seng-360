@@ -218,6 +218,7 @@ def chat_mode():
             break
         elif chat == 'P':
             client_socket.send(encrypt_server_message("--purge"))
+            _ = system('clear')
             print("Messages from this room have been purged")
         else:
             print("Invalid input")
