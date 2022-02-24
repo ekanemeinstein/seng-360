@@ -4,10 +4,7 @@ Created for SENG360 Assignment 3
 It's garbage, but it's MY garbage
 '''
 
-import sqlite3
 import sys
-import os
-import getpass
 
 ##change this to create a new database with a new name automatically
 dbname='test.db'

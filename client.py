@@ -1,12 +1,10 @@
-import socket, select 
-from sys import stdin, stdout
+import socket
+from sys import stdin
 import threading
 from os import system
 from PIL import Image
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
-import binascii
-import sys
 from time import sleep
 
 # Create stream socket and connect to server IP

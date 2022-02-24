@@ -1,11 +1,9 @@
-import socket, select
+import socket
 from _thread import *
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
-import binascii
 import a3DB
 import sqlite3
-import getpass
 import os
 import sys
 
