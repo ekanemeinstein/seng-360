@@ -14,7 +14,9 @@ on:
 
 
 jobs:
-  # This workflow contains a single job called "build"
+
+  name: Run client and server to to check for obvious errors
+
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
@@ -36,6 +38,7 @@ jobs:
       
       # if errno is 111, then the client failed to connect as is expected, so exit 0
       - name: Run python client.py to see if it works
+        #start server in background for connection
         run: |
-          python3 server.py & # start server in background for connection
+          python3 server.py &
           timeout 5 python3 client.py || ( [[ $? -eq 111 ]] && exit 0 || exit 1 )
