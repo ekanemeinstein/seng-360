@@ -29,11 +29,10 @@ jobs:
           pip install pycryptodome
 
       # Runs a set of commands using the runners shell
+      # Exit 0 if timeout complete successfully, 1 if timeout failed
       - name: Run python server.py to see if it works
-        run: timeout 10 python3 server.py || ( [[ $? -eq 124 ]] && \
-          echo "Timeout reached, but that's OK" )
+        run: timeout 5 python3 server.py || ( [[ $? -eq 124 ]] && exit 0 || exit 1 )
       
       - name: Run python client.py to see if it works
-        run: timeout 10 python3 client.py || ( [[ $? -eq 124 ]] && \
-          echo "Timeout reached, but that's OK" )
+        run: timeout 10 python3 client.py || ( [[ $? -eq 124 ]] && exit 0 ) || exit 1
           
