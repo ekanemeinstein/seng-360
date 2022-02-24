@@ -27,45 +27,45 @@ interface = None
 not_setup= not os.path.exists(dbname)
 
 try:
-	interface = sqlite3.connect(dbname, check_same_thread=False)
+    interface = sqlite3.connect(dbname, check_same_thread=False)
 
-	if not_setup:
-		print("First time setup for database starting")
-		interface.execute('''
-		CREATE TABLE `accounts` (
-			`username` TEXT NOT NULL,
-			`password` TEXT NOT NULL,
-			PRIMARY KEY (username)
-		);
-		''')
-		interface.execute('''
-		CREATE TABLE `chatroom` (
-			`username` TEXT NOT NULL,
-			`num` INTEGER NOT NULL
-		);
-		''')
-		interface.execute('''
-		CREATE TABLE `chatnames` (
-			`num` INTEGER NOT NULL,
-			`name` TEXT NOT NULL,
-			PRIMARY KEY (name)
-		);
-		''')
-		interface.execute('''
-		CREATE TABLE `message` (
-			`num` INTEGER NOT NULL,
-			`indexnum` INTEGER NOT NULL,
-			`content` TEXT NOT NULL, --filepath
-			`username` TEXT NOT NULL,
-			CONSTRAINT PK_message PRIMARY KEY (num, indexnum)
-		);
-		''')
-		print("Setup Complete")
-	else:
-		print("Database found")
+    if not_setup:
+        print("First time setup for database starting")
+        interface.execute('''
+        CREATE TABLE `accounts` (
+            `username` TEXT NOT NULL,
+            `password` TEXT NOT NULL,
+            PRIMARY KEY (username)
+        );
+        ''')
+        interface.execute('''
+        CREATE TABLE `chatroom` (
+            `username` TEXT NOT NULL,
+            `num` INTEGER NOT NULL
+        );
+        ''')
+        interface.execute('''
+        CREATE TABLE `chatnames` (
+            `num` INTEGER NOT NULL,
+            `name` TEXT NOT NULL,
+            PRIMARY KEY (name)
+        );
+        ''')
+        interface.execute('''
+        CREATE TABLE `message` (
+            `num` INTEGER NOT NULL,
+            `indexnum` INTEGER NOT NULL,
+            `content` TEXT NOT NULL, --filepath
+            `username` TEXT NOT NULL,
+            CONSTRAINT PK_message PRIMARY KEY (num, indexnum)
+        );
+        ''')
+        print("Setup Complete")
+    else:
+        print("Database found")
 
-	print("Opening Server for Connections")
-	#print("Enter \"help\" at any time to display available commands, or \"exit\" to shut down the program")
+    print("Opening Server for Connections")
+    #print("Enter \"help\" at any time to display available commands, or \"exit\" to shut down the program")
 
 except sqlite3.Error as e:
     print(f"Error {e.args[0]}")
@@ -265,7 +265,7 @@ while in_session:
         connections.append(connection)
         connection.send(server_pubKey.export_key())
         print(f"{client_address} is connected.\n")
-        
+
         # Start each new client connection as a thread
         start_new_thread(client_handler,(connection,client_address))  
     except Exception as e:
