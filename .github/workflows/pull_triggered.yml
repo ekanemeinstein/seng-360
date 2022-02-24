@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      -uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-      -name: run a3DB.py to see if it has any errors
+      - name: run a3DB.py to see if it has any errors
         run: timeout 5 python3 a3DB.py || ( [[ $? -eq 111 ]] && exit 0 )
