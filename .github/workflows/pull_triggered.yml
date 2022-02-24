@@ -37,5 +37,5 @@ jobs:
       # if errno is 111, then the client failed to connect as is expected, so exit 0
       - name: Run python client.py to see if it works
         run: |
-          timeout 6 python3 server.py & # start server in background for connection
+          python3 server.py & # start server in background for connection
           timeout 5 python3 client.py || ( [[ $? -eq 111 ]] && exit 0 || exit 1 )
