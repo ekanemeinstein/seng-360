@@ -40,3 +40,13 @@ jobs:
       #  run: |
       #    python3 server.py &
       #    timeout 5 python3 client.py || ( [[ $? -eq 111 ]] && exit 0 )
+
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    steps:
+      -uses: actions/checkout@v2
+
+      -name: run a3DB.py to see if it has any errors
+        run: timeout 5 python3 a3DB.py || ( [[ $? -eq 111 ]] && exit 0 )
