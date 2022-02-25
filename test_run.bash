@@ -11,8 +11,10 @@ function exit_w_code() {
 }
 
 #Run server.py in background if it exits with an error, then exit the script with that error
-python3 server.py &
+timeout 10 python3 server.py &
 server_pid=$!
+
+sleep 1
 
 if [ $? -ne 0 ]; then
     kill $server_pid
@@ -33,7 +35,7 @@ fi
 
 
 #Run client.py for 10 seconds
-timeout 10 python3 client.py
+timeout 5 python3 client.py
 client_exit_status=$?
 
 if [ $client_exit_status -eq 124 ]; then
