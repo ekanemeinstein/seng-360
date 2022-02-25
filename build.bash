@@ -9,7 +9,8 @@ fi
 if [ $1 = "--help" ]; then
     echo "Usage: $0 [--help] [--run]"
     echo "--help: Prints this message"
-    echo "--run [file]: Runs the server or client"
+    echo "--run [server, client]: Runs the server and client"
+    echo "--test: Runs test suite"
     exit 0
 elif [ $1 = "--run" ]; then
     if [ $# -ne 2 ]; then
@@ -27,7 +28,7 @@ elif [ $1 = "--run" ]; then
         echo "Running tests script"
         bash test_run.bash
     else
-        echo "Invalid file"
+        echo "Invalid command type, user \"server\" or \"client\""
         exit 1
     fi
 elif [ $1 = "--test" ]; then
