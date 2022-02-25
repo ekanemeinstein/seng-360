@@ -8,7 +8,7 @@ on:
   push:
     branches: [ master ]
   pull_request:
-    branches: [ master, samuel-barrett-patch-1 ]
+    branches: [ master ]
 
   workflow_dispatch:
 
