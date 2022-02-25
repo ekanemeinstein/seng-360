@@ -16,13 +16,13 @@ elif [ $1 = "--run" ]; then
         echo "Use: $0 --help for usage instructions"
         exit 1
     fi
-    
+
     if [ $2 = "server" ]; then
-        echo "Running server"
-        python3 server.py &
+        echo "Running server, please check server.log for output"
+        python3 server.py 2> server.log &
     elif [ $2 = "client" ]; then
         echo "Running client"
-        python3 client.py &
+        python3 client.py
     elif [ $2 = "test" ]; then
         echo "Running tests script"
         bash test_run.bash
