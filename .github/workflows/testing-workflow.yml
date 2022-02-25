@@ -28,6 +28,8 @@ jobs:
         pip install pillow
     - name: start server
       run: |
-        python server.py &
+        python server.py >run.log 2>&1 &
+    - name: run test cases with pytest
+      run: |
         sleep 15
         pytest
