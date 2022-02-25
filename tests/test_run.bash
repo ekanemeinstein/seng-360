@@ -33,7 +33,8 @@ fi
 
 
 #Run client.py for 10 seconds
-timeout 10 python3 client.py
+sleep 8
+timeout 2 python3 client.py
 client_exit_status=$?
 
 if [ $client_exit_status -eq 124 ]; then
