@@ -34,13 +34,14 @@ jobs:
 
       # Runs a set of commands using the runners shell
       # Exit 0 if timeout complete successfully, 1 if timeout failed
-      - name: Run test bash script to test see if server and client will run/connect
-        run: |
-          bash tests/test_run.bash
+#       - name: Run test bash script to test see if server and client will run/connect
+#         run: |
+#           bash tests/test_run.bash
       
       # if errno is 111, then the client failed to connect as is expected, so exit 0
-      #- name: Run python client.py to see if it works
+      - name: Run python client.py to see if it works
       #start server in background for connection
-      #  run: |
-      #    python3 server.py &
-      #    timeout 5 python3 client.py || ( [[ $? -eq 111 ]] && exit 0 )
+        run: |
+         python3 server.py >output.log 2>&1 &
+         sleep 15
+         timeout 10 python3 client.py || ( [[ $? -eq 111 ]] && exit 0 )
