@@ -33,8 +33,22 @@ fi
 
 
 #Run client.py for 10 seconds
-timeout 10 python3 client.py
+python3 client.py &
 client_exit_status=$?
+
+sleep 5
+
+#Kill server.py if it is still running
+ps -p $server_pid > /dev/null
+if [ $? -eq 0 ]; then
+    kill $server_pid
+fi
+
+#Kill client.py if it is still running
+ps -p $client_pid > /dev/null
+if [ $? -eq 0 ]; then
+    kill $client_pid
+fi
 
 if [ $client_exit_status -eq 124 ]; then
     echo "Client timed out"
