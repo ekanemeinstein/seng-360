@@ -16,7 +16,7 @@ elif [ $1 = "--run" ]; then
         echo "Use: $0 --help for usage instructions"
         exit 1
     fi
-    file = $2
+    
     if [ $2 = "server" ]; then
         echo "Running server"
         python3 server.py &
