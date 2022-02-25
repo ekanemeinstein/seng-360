@@ -20,7 +20,7 @@ if [ $? -ne 0 ]; then
 fi
 
 #sleep for two seconds to make sure the server is up
-sleep 10
+sleep 15
 
 #Run ps to check if server.py is running
 #If it is not running, print error message and exit
