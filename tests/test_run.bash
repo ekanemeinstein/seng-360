@@ -20,7 +20,7 @@ if [ $? -ne 0 ]; then
 fi
 
 #sleep for two seconds to make sure the server is up
-sleep 2
+sleep 10
 
 #Run ps to check if server.py is running
 #If it is not running, print error message and exit
@@ -33,7 +33,6 @@ fi
 
 
 #Run client.py for 10 seconds
-sleep 8
 timeout 2 python3 client.py
 client_exit_status=$?
 
