@@ -36,8 +36,8 @@ jobs:
       # Exit 0 if timeout complete successfully, 1 if timeout failed
       - name: Run test bash script to test see if server and client will run/connect
         run: |
-        ps
-        bash tests/test_run.bash
+          ps
+          bash tests/test_run.bash
       
       # if errno is 111, then the client failed to connect as is expected, so exit 0
       #- name: Run python client.py to see if it works
