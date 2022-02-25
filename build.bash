@@ -19,7 +19,7 @@ elif [ $1 = "--run" ]; then
 
     if [ $2 = "server" ]; then
         echo "Running server, please check server.log for output"
-        python3 server.py 2> server.log &
+        python3 server.py &> server.log &
     elif [ $2 = "client" ]; then
         echo "Running client"
         python3 client.py
