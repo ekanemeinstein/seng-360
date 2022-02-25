@@ -32,4 +32,4 @@ jobs:
     - name: run test cases with pytest
       run: |
         sleep 15
-        pytest
+        pytest -v
