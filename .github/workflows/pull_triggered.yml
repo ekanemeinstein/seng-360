@@ -5,10 +5,10 @@ name: Run client and server to to check for obvious errors
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
-  #push:
-  #  branches: [ main ]
+  push:
+    branches: [ master ]
   pull_request:
-    branches: [ main, samuel-barrett-patch-1 ]
+    branches: [ master, samuel-barrett-patch-1 ]
 
   workflow_dispatch:
 
