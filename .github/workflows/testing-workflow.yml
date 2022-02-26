@@ -11,7 +11,10 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-2016]
+      
     steps:
     # check out latest code
     - uses: actions/checkout@v2
